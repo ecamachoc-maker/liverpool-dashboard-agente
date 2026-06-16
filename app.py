@@ -10,20 +10,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# Estilos CSS Corporativos y Media Print para PDF de Minutas
-st.markdown("""
-    <style>
-    @import url('https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css');
-    .title-liverpool { color: #E01E5A; font-family: 'Arial', sans-serif; }
-    .bg-liverpool { background-color: #E01E5A; }
-    .card-dashboard { background: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 4px solid #E01E5A; }
-    @media print {
-        .no-print { display: none !important; }
-        .print-break { page-break-before: always; }
-        body { background: white; color: black; }
-    }
-    </style>
-""", unsafe_allowed_html=True)
+# Estilos CSS Corporativos inyectados de forma segura (Línea por línea para evitar errores de Python 3.14)
+st.markdown("<link href='https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwindcss.min.css' rel='stylesheet'>", unsafe_allowed_html=True)
+st.markdown("<style>.title-liverpool { color: #E01E5A; font-family: 'Arial', sans-serif; }</style>", unsafe_allowed_html=True)
+st.markdown("<style>.bg-liverpool { background-color: #E01E5A; }</style>", unsafe_allowed_html=True)
+st.markdown("<style>.card-dashboard { background: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border-left: 4px solid #E01E5A; }</style>", unsafe_allowed_html=True)
 
 # Variables por defecto (Datos del Almacén 195 L Tecámac)
 info_tienda = {"Ubicación": "L Tecámac", "JA": "Irma Madrid Martínez", "Director": "José Manuel Luis Sánchez"}
@@ -44,10 +35,8 @@ with st.sidebar:
 # --- LÓGICA DE EXTRACCIÓN AUTOMÁTICA DEL AGENTE ---
 if uploaded_file is not None:
     try:
-        # Extraer texto del documento Word cargado
         texto_completo = docx2txt.process(uploaded_file)
         
-        # El agente busca patrones de texto mediante expresiones regulares (Regex)
         tienda_match = re.search(r"Ubicación:\s*(.*)", texto_completo)
         ja_match = re.search(r"Jefe Administrativo:\s*(.*)", texto_completo)
         director_match = re.search(r"Director:\s*(.*)", texto_completo)
@@ -67,19 +56,7 @@ if uploaded_file is not None:
 # ==============================================================================
 
 # Encabezado Ejecutivo
-st.markdown(f"""
-    <div class='flex justify-between items-center border-b-2 border-gray-200 pb-4 mb-6'>
-        <div>
-            <h1 class='title-liverpool font-bold text-3xl'>Plataforma de Control Interno y Dashboard Ejecutivo</h1>
-            <p class='text-gray-500 text-sm'>Ubicación: {info_tienda['Ubicación']} | Director: {info_tienda['Director']} | JA: {info_tienda['JA']}</p>
-        </div>
-        <div class='text-right no-print'>
-            <button onclick="window.print()" class='bg-liverpool text-white font-bold px-4 py-2 rounded shadow hover:bg-pink-700 transition'>
-                🖨️ Imprimir / Guardar PDF
-            </button>
-        </div>
-    </div>
-""", unsafe_allowed_html=True)
+st.markdown("<div class='flex justify-between items-center border-b-2 border-gray-200 pb-4 mb-6'><div><h1 class='title-liverpool font-bold text-3xl'>Plataforma de Control Interno y Dashboard Ejecutivo</h1><p class='text-gray-500 text-sm'>Ubicación: " + info_tienda['Ubicación'] + " | Director: " + info_tienda['Director'] + " | JA: " + info_tienda['JA'] + "</p></div><div class='text-right no-print'><button onclick='window.print()' class='bg-liverpool text-white font-bold px-4 py-2 rounded shadow hover:bg-pink-700 transition'>🖨️ Imprimir / Guardar PDF</button></div></div>", unsafe_allowed_html=True)
 
 # --- PANEL DE REPORTE DE KPIs ---
 st.markdown("### 📊 Resumen Ejecutivo de KPIs")
@@ -88,41 +65,17 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     color_adcoco = "text-green-600" if calculo_adcoco <= 1.49 else ("text-yellow-600" if calculo_adcoco <= 1.80 else "text-red-600")
     estatus_adcoco = "Riesgo Bajo" if calculo_adcoco <= 1.49 else ("Riesgo Medio" if calculo_adcoco <= 1.80 else "Riesgo Alto")
-    st.markdown(f"""
-        <div class='card-dashboard p-5 bg-white'>
-            <p class='text-gray-400 font-semibold text-xs uppercase tracking-wider'>Índice ADCOCO</p>
-            <p class='text-3xl font-bold {color_adcoco}'>{calculo_adcoco:.2f}</p>
-            <p class='text-xs font-medium text-gray-500 mt-1'>Estado: <b>{estatus_adcoco}</b></p>
-        </div>
-    """, unsafe_allowed_html=True)
+    st.markdown("<div class='card-dashboard p-5 bg-white'><p class='text-gray-400 font-semibold text-xs uppercase tracking-wider'>Índice ADCOCO</p><p class='text-3xl font-bold " + color_adcoco + "'>" + f"{calculo_adcoco:.2f}" + "</p><p class='text-xs font-medium text-gray-500 mt-1'>Estado: <b>" + estatus_adcoco + "</b></p></div>", unsafe_allowed_html=True)
 
 with col2:
     monto_total_riesgo = monto_vales + monto_retiros + monto_suministros + monto_materialidad
-    st.markdown(f"""
-        <div class='card-dashboard p-5 bg-white' style='border-left-color: #EF4444;'>
-            <p class='text-gray-400 font-semibold text-xs uppercase tracking-wider'>Monto Total en Riesgo</p>
-            <p class='text-3xl font-bold text-red-600'>${monto_total_riesgo:,.2f}</p>
-            <p class='text-xs font-medium text-gray-500 mt-1'>Valores y Riesgo Operativo</p>
-        </div>
-    """, unsafe_allowed_html=True)
+    st.markdown("<div class='card-dashboard p-5 bg-white' style='border-left-color: #EF4444;'><p class='text-gray-400 font-semibold text-xs uppercase tracking-wider'>Monto Total en Riesgo</p><p class='text-3xl font-bold text-red-600'>$" + f"{monto_total_riesgo:,.2f}" + "</p><p class='text-xs font-medium text-gray-500 mt-1'>Valores y Riesgo Operativo</p></div>", unsafe_allowed_html=True)
 
 with col3:
-    st.markdown(f"""
-        <div class='card-dashboard p-5 bg-white' style='border-left-color: #3B82F6;'>
-            <p class='text-gray-400 font-semibold text-xs uppercase tracking-wider'>Venta Registrada Auditada</p>
-            <p class='text-3xl font-bold text-blue-600'>108 M</p>
-            <p class='text-xs font-medium text-gray-500 mt-1'>Curva Horaria de Retiros Completa</p>
-        </div>
-    """, unsafe_allowed_html=True)
+    st.markdown("<div class='card-dashboard p-5 bg-white' style='border-left-color: #3B82F6;'><p class='text-gray-400 font-semibold text-xs uppercase tracking-wider'>Venta Registrada Auditada</p><p class='text-3xl font-bold text-blue-600'>108 M</p><p class='text-xs font-medium text-gray-500 mt-1'>Curva Horaria de Retiros Completa</p></div>", unsafe_allowed_html=True)
 
 with col4:
-    st.markdown(f"""
-        <div class='card-dashboard p-5 bg-white' style='border-left-color: #10B981;'>
-            <p class='text-gray-400 font-semibold text-xs uppercase tracking-wider'>Evolución Histórica</p>
-            <p class='text-3xl font-bold text-emerald-600'>1.48</p>
-            <p class='text-xs font-medium text-gray-500 mt-1'>Estable (2024: 1.45 | 2025: 1.40)</p>
-        </div>
-    """, unsafe_allowed_html=True)
+    st.markdown("<div class='card-dashboard p-5 bg-white' style='border-left-color: #10B981;'><p class='text-gray-400 font-semibold text-xs uppercase tracking-wider'>Evolución Histórica</p><p class='text-3xl font-bold text-emerald-600'>1.48</p><p class='text-xs font-medium text-gray-500 mt-1'>Estable (2024: 1.45 | 2025: 1.40)</p></div>", unsafe_allowed_html=True)
 
 # --- GRÁFICOS INTERACTIVOS ---
 st.markdown("<br>### 📈 Gráficos Interactivos de Operación", unsafe_allowed_html=True)
@@ -145,7 +98,7 @@ with col_g2:
     st.bar_chart(df_riesgos_monto, color="#E01E5A")
 
 # --- SIMULADOR DEL ÍNDICE ADCOCO ---
-st.markdown("<div class='print-break'></div>### 🧮 Simulador del Índice ADCOCO (Control Interno)", unsafe_allowed_html=True)
+st.markdown("<br>### 🧮 Simulador del Índice ADCOCO (Control Interno)", unsafe_allowed_html=True)
 st.write("Marca las observaciones críticas como solventadas para observar la reducción del riesgo de la tienda en tiempo real:")
 
 col_s1, col_s2 = st.columns([2, 1])
@@ -158,7 +111,6 @@ with col_s1:
     s_antilavado = st.checkbox("Completar avance del Curso Ley Antilavado (Actual: 10.1%) - [Riesgo Alto]", value=False)
 
 with col_s2:
-    # Lógica matemática ponderada base (41 temas bajo, 6 medio, 3 alto)
     bajo_base, medio_base, alto_base = 41, 6, 3
     
     if s_vales: medio_base -= 1; bajo_base += 1
